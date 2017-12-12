@@ -123,7 +123,6 @@ function labelStuff() {
 
   fill(255);
   text('Current sound source: ' + currentSource, width/2, 40);
-  textSize(14);
   text('Click to switch sound sources', width/2, 60);
 
   // fft x-axis tick marks
