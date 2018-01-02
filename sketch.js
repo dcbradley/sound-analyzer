@@ -9,6 +9,7 @@ var samples = [];
 var old_samples = [];
 var old_sample_offset = 0;
 var selectedBin;
+var last_activity = 0;
 
 
 function preload() {
@@ -33,6 +34,7 @@ function setup() {
   }
 
   toggleInput(1);
+  activity();
 }
 
 function draw() {
@@ -96,6 +98,19 @@ function draw() {
   textAlign(LEFT,BOTTOM);
 
   labelStuff();
+
+  var now = Date.now();
+  if( now - last_activity > 1000*60*2 ) {
+    last_activity = now;
+    // Switch back to microphone input after a period of inactivity to
+    // avoid playing an annoying noise for a long time.  Also, it has
+    // been observed after long periods that the microphone gets
+    // automatically muted (automatic gain adjust?).  Manually
+    // toggling between input sources solved that problem, so attempt
+    // to automate that here.
+    toggleInput(2);
+    toggleInput(1);
+  }
 }
 
 function sampleDiff(sample1_offset,sample1,sample2_offset,sample2) {
@@ -124,6 +139,9 @@ function labelStuff() {
   fill(255);
   text('Current sound source: ' + currentSource, width/2, 40);
   text('Click to switch sound sources', width/2, 60);
+  if( inputMode > 1 ) {
+    text('Move the mouse to change the frequency', width/2, 80);
+  }
 
   // fft x-axis tick marks
   var next_freq = bins[bins.length/128].freq;
@@ -159,9 +177,9 @@ function windowResized() {
   scaleChanged = true;
 }
 
-// ============
-// toggle input
-// ============
+function activity() {
+  last_activity = Date.now();
+}
 
 // in p5, keyPressed is not case sensitive, but keyTyped is
 function keyPressed() {
@@ -172,10 +190,12 @@ function keyPressed() {
     console.log('l');
     toggleScale();
   }
+  activity();
 }
 
 function mouseClicked() {
   toggleInput();
+  activity();
 }
 
 // start with mic as input
@@ -194,13 +214,14 @@ function toggleInput(mode) {
       osc.stop();
       mic.stop();
       fft.setInput(soundFile);
-      currentSource = 'soundFile';
+      currentSource = 'music file';
       break;
     case 1: // mic mode
       mic.start();
+      osc.stop();
       soundFile.pause();
       fft.setInput(mic);
-      currentSource = 'mic';
+      currentSource = 'microphone';
       break;
     case 2: // sine mode
       osc.setType('sine');
@@ -208,19 +229,31 @@ function toggleInput(mode) {
       soundFile.pause();
       mic.stop();
       fft.setInput(osc);
-      currentSource = 'sine';
+      currentSource = 'sine wave';
       break;
     case 3: // square mode
       osc.setType('triangle');
-      currentSource = 'triangle';
+      osc.start();
+      soundFile.pause();
+      mic.stop();
+      fft.setInput(osc);
+      currentSource = 'triangle wave';
       break;
     case 4: // square mode
       osc.setType('square');
-      currentSource = 'square';
+      osc.start();
+      soundFile.pause();
+      mic.stop();
+      fft.setInput(osc);
+      currentSource = 'square wave';
       break;
     case 5: // square mode
       osc.setType('sawtooth');
-      currentSource = 'sawtooth';
+      osc.start();
+      soundFile.pause();
+      mic.stop();
+      fft.setInput(osc);
+      currentSource = 'sawtooth wave';
       break;
   }
 }
@@ -242,6 +275,7 @@ function mouseMoved() {
       }
     }
   }
+  activity();
 }
 
 // ==========
