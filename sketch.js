@@ -2,7 +2,7 @@ var mic, osc, soundFile;
 var currentSource = 'mic';
 
 var fft;
-var binCount = 1024;
+var binCount = 4096;
 var bins = new Array(binCount);
 var scaleChanged = true;
 var samples = [];
@@ -20,7 +20,8 @@ function setup() {
   noStroke();
   colorMode(HSB);
 
-  soundFile = loadSound('music/Broke_For_Free_-_01_-_As_Colorful_As_Ever.mp3')
+  //soundFile = loadSound('music/Broke_For_Free_-_01_-_As_Colorful_As_Ever.mp3')
+  soundFile = loadSound('music/Scales.m4a')
   mic = new p5.AudioIn();
   osc = new p5.Oscillator();
   osc.amp(0.3);
